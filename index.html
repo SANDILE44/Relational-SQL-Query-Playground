@@ -1,36 +1,143 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ninja Game</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relational SQL Query Playground | Sandile SystemsWorks</title>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="sql-style.css">
 </head>
-
 <body>
 
-<!-- Controls -->
-<div class="controls">
+    <div class="app-container">
+        <!-- TOP HEADER BAR -->
+        <header class="app-header">
+            <div class="brand">
+                <i class="fa-solid fa-database brand-icon"></i>
+                <div>
+                    <h1>Relational SQL Query Playground</h1>
+                    <p class="subtitle">Interactive MySQL Schema Workbench & Logistics Data Aggregation Engine</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <span class="system-status">
+                    <span class="status-dot"></span> MYSQL WORKBENCH V2.4
+                </span>
+                <a href="route-calculator.html" class="nav-link-btn">
+                    <i class="fa-solid fa-arrow-left"></i> Route Calculator
+                </a>
+            </div>
+        </header>
 
-  <div class="dpad">
-    <div></div>
-    <button class="btn" ontouchstart="keys.up=true" ontouchend="keys.up=false">⬆️</button>
-    <div></div>
+        <!-- MAIN WORKBENCH GRID -->
+        <main class="workbench-grid">
 
-    <button class="btn" ontouchstart="keys.left=true" ontouchend="keys.left=false">⬅️</button>
-    <div></div>
-    <button class="btn" ontouchstart="keys.right=true" ontouchend="keys.right=false">➡️</button>
+            <!-- LEFT SIDEBAR: SCHEMA EXPLORER (ERD MOCKUP) -->
+            <aside class="panel schema-panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-sitemap"></i> Schema Explorer</h2>
+                    <span class="badge">logistics_db</span>
+                </div>
 
-    <div></div>
-    <button class="btn" ontouchstart="keys.down=true" ontouchend="keys.down=false">⬇️</button>
-    <div></div>
-  </div>
+                <div class="schema-tree">
+                    <!-- Table 1 -->
+                    <div class="table-node">
+                        <div class="table-title"><i class="fa-solid fa-table"></i> Fact_Trips</div>
+                        <ul class="column-list">
+                            <li><span class="pk">PK</span> trip_id <span class="type">INT</span></li>
+                            <li><span class="fk">FK</span> fleet_id <span class="type">INT</span></li>
+                            <li>distance_km <span class="type">DECIMAL</span></li>
+                            <li>fuel_cost_zar <span class="type">DECIMAL</span></li>
+                            <li>toll_fees_zar <span class="type">DECIMAL</span></li>
+                            <li>contract_revenue <span class="type">DECIMAL</span></li>
+                        </ul>
+                    </div>
 
-  <button class="btn attack" ontouchstart="attack()">👊</button>
+                    <!-- Table 2 -->
+                    <div class="table-node">
+                        <div class="table-title"><i class="fa-solid fa-table"></i> Dim_Fleet</div>
+                        <ul class="column-list">
+                            <li><span class="pk">PK</span> fleet_id <span class="type">INT</span></li>
+                            <li>vehicle_model <span class="type">VARCHAR</span></li>
+                            <li>consumption_l_100km <span class="type">FLOAT</span></li>
+                            <li>maintenance_rate_km <span class="type">DECIMAL</span></li>
+                        </ul>
+                    </div>
 
-</div>
+                    <!-- Table 3 -->
+                    <div class="table-node">
+                        <div class="table-title"><i class="fa-solid fa-table"></i> Dim_Routes</div>
+                        <ul class="column-list">
+                            <li><span class="pk">PK</span> route_id <span class="type">INT</span></li>
+                            <li>corridor_name <span class="type">VARCHAR</span></li>
+                            <li>risk_level <span class="type">VARCHAR</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </aside>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-<script src="script.js"></script>
+            <!-- RIGHT SECTION: QUERY EDITOR & RESULTS -->
+            <section class="editor-section">
+                
+                <!-- QUERY EDITOR PANEL -->
+                <div class="panel editor-panel">
+                    <div class="panel-header">
+                        <h2><i class="fa-solid fa-terminal"></i> SQL Query Editor</h2>
+                        <div class="quick-presets">
+                            <span class="preset-label">Quick Presets:</span>
+                            <button class="btn-preset" data-query="select_all_trips">All Trips</button>
+                            <button class="btn-preset" data-query="join_fleet">Fleet Join</button>
+                            <button class="btn-preset" data-query="critical_margins">Margin Leaks</button>
+                        </div>
+                    </div>
 
+                    <div class="query-box">
+                        <textarea id="sql-input" spellcheck="false" placeholder="Enter your MySQL query here... (e.g., SELECT * FROM Fact_Trips JOIN Dim_Fleet...)">SELECT t.trip_id, f.vehicle_model, t.distance_km, t.contract_revenue, t.fuel_cost_zar 
+FROM Fact_Trips t 
+JOIN Dim_Fleet f ON t.fleet_id = f.fleet_id;</textarea>
+                    </div>
+
+                    <div class="editor-actions">
+                        <button id="run-query-btn" class="btn-run">
+                            <i class="fa-solid fa-play"></i> Run SQL Query
+                        </button>
+                        <span id="query-status-text" class="query-status success">Ready to execute (3 rows returned)</span>
+                    </div>
+                </div>
+
+                <!-- RESULTS DATA TABLE PANEL -->
+                <div class="panel results-panel">
+                    <div class="panel-header">
+                        <h2><i class="fa-solid fa-table-cells"></i> Query Execution Results</h2>
+                        <span class="badge secondary" id="row-count-badge">3 Records</span>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="results-table">
+                            <thead id="table-head">
+                                <!-- Dynamically populated by JS -->
+                            </thead>
+                            <tbody id="table-body">
+                                <!-- Dynamically populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+          
+        </main>
+
+        <!-- FOOTER BAR -->
+        <footer class="app-footer">
+            <p>Designed & Engineered by <strong>Sandile Thabede</strong> | Technical Business Analyst & Systems Architect</p>
+            <p class="tech-stack">Stack: Relational Mock Engine • SQL Parser • Dynamic DOM Grid</p>
+        </footer>
+    </div>
+
+    <script src="sql-app.js"></script>
 </body>
 </html>
